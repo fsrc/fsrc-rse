@@ -8,6 +8,7 @@ require! {
     open-cli
     new-cli
   }
+  \./help
 }
 
 say = console.log
@@ -18,18 +19,7 @@ args = args |> tail
 
 commands = <[ help list open new ]>
 
-help = """
-Usage: #{exec} #{commands.join(\|)} [host] [session]
-
-Commands:
-  help    Display this help page
-  list    List available sessions on host
-  open    Open or create session on host
-  new     Create new window in session
-
-Example:
-
-"""
+help-text = help(exec, commands)
 
 command = args |> head
 host = args.1
@@ -37,9 +27,9 @@ session = args.2
 client = 'ssh'
 
 switch command
-case \help then say help
+case \help then say help-text
 case \list then list-cli(host)
 case \open then open-cli(client, host, session)
-case \new  then new-cli(client, host, session,  index)
-default say help
+case \new  then new-cli(client, host, session)
+default say help-text
 

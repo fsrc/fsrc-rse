@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Local multi window session on remote host",
   "main": "index.js",
+  "bin": {
+    "rse": "./bin/rse"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

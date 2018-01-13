@@ -1,5 +1,7 @@
 require! {
   'prelude-ls': {
+    any
+    filter
     each
     tail
     initial
@@ -8,6 +10,7 @@ require! {
     group-by
     keys
     maximum-by
+    drop
   }
   'child_process': {
     spawn
@@ -29,7 +32,7 @@ export create-cmd = (client, host, session, index) ->
   title = "#{host}#{SC}#{name}"
   {
     mosh : [ '-T', title, '-e', MOSH, host, '--', SM,   '-c', name, SHELL ]
-    ssh : [ '-T', title, '-e', SSH, host, '-t', '--', SM, '-c', name, SHELL ]
+    ssh :  [ '-T', title, '-e', SSH, host, '-t', '--', SM, '-c', name, SHELL ]
   }[client]
 
 export open-cmd = (client, host, session, index) ->
@@ -37,23 +40,42 @@ export open-cmd = (client, host, session, index) ->
   title = "#{host}#{SC}#{name}"
   {
     mosh : [ '-T', title, '-e', MOSH, host, '--', SM,   '-a', name ]
-    ssh : [ '-T', title, '-e', SSH, host, '-t', '--', SM, '-a', name ]
+    ssh :  [ '-T', title, '-e', SSH, host, '-t', '--', SM, '-a', name ]
   }[client]
 
 export list-cmd = (host) ->
   "ssh #{host} 'abduco -l'"
 
+
+export window-name-to-id = (name) ->
+  [host, session, index] = name.
+    replace('\n', '').
+    split(SC)
+
+  host: host
+  session: session
+  index: parseInt(index)
+
 export focused = (callback) ->
   (err, stdout, stderr) <- exec('xtitle')
 
-  [host, session, index] = stdout.split(SC)
+  id = window-name-to-id(stdout)
 
-  id = { host: host, session: session, index: index }
-
-  if not index?
+  if not id.index?
   then callback(null)
   else callback(id)
 
+export windows = (callback) ->
+  (err, stdout, stderr) <- exec('wmctrl -l')
+  id-list = stdout
+  |> lines
+  |> map (line) ->
+    words = line.split(' ')
+    window-name-to-id((words |> drop 4).join(' '))
+  |> filter (id) ->
+    id.host? and id.session? and id.index?
+
+  callback(id-list)
 
 export sessions = (host, callback) ->
   (err, stdout, stderr) <- exec(list-cmd(host))
@@ -96,7 +118,16 @@ export open = (client, host, session-name) ->
     create-new(client, host, session-name, 0)
   else
     console.log "Open existing"
-    session |> each (window) ->
+    (id-list) <- windows!
+
+    session
+    |> filter (window) ->
+      not (id-list |> any (id) ->
+        console.log id
+        id.host == host and
+        id.session == window.name and
+        id.index == window.index)
+    |> each (window) ->
       spawn(
         'st',
         open-cmd(client, host, window.name, window.index),
