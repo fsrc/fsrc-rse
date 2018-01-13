@@ -1,0 +1,29 @@
+{
+  "name": "rse",
+  "version": "1.0.0",
+  "description": "Local multi window session on remote host",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fsrc/rse.git"
+  },
+  "keywords": [
+    "tmux",
+    "abduco",
+    "cli",
+    "servers"
+  ],
+  "author": "Fredrik Andersson",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/fsrc/rse/issues"
+  },
+  "homepage": "https://github.com/fsrc/rse#readme",
+  "dependencies": {
+    "livescript": "^1.5.0",
+    "prelude-ls": "^1.1.2"
+  }
+}
