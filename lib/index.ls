@@ -2,6 +2,9 @@ require! {
   'prelude-ls' : {
     head
     tail
+    filter
+    reject
+    any
   }
   \./cli : {
     list-cli
@@ -21,15 +24,24 @@ commands = <[ help list open new ]>
 
 help-text = help(exec, commands)
 
-command = args |> head
-host = args.1
+flags = args |> filter (arg) -> arg[0] == '-'
+args  = args |> reject (arg) -> arg[0] == '-'
+
+options = {
+  dmenu: flags |> any (alt) -> alt == '-d'
+}
+
+host    = args |> head
+command = args.1
 session = args.2
-client = 'ssh'
+client  = 'mosh'
+
+host = process.env.RSE_HOST if not host?
 
 switch command
 case \help then say help-text
-case \list then list-cli(host)
-case \open then open-cli(client, host, session)
-case \new  then new-cli(client, host, session)
+case \list then list-cli(options, host)
+case \open then open-cli(options, client, host, session)
+case \new  then  new-cli(options, client, host, session)
 default say help-text
 

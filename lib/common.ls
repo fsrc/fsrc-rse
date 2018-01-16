@@ -23,9 +23,12 @@ require! {
 
 MOSH  = \mosh
 SM    = \abduco
-SHELL = \zsh
+SHELL = \dvtm
 SSH   = \ssh
 SC    = \#
+
+export dmenu-cmd = (prompt) ->
+  [ '-p', "'#{prompt}'" ]
 
 export create-cmd = (client, host, session, index) ->
   name = "#{session}#{SC}#{index}"
@@ -55,6 +58,16 @@ export window-name-to-id = (name) ->
   host: host
   session: session
   index: parseInt(index)
+
+export dmenu = (prompt, list, callback) ->
+  cp = spawn('dmenu', dmenu-cmd(prompt))
+
+  cp.stdin.write(Buffer.from(list.join("\n")))
+  cp.stdin.end!
+
+  cp.stdout.on('data', (d) ->
+    choice = d.to-string!.replace(\\n, '')
+    callback(choice))
 
 export focused = (callback) ->
   (err, stdout, stderr) <- exec('xtitle')
@@ -123,7 +136,6 @@ export open = (client, host, session-name) ->
     session
     |> filter (window) ->
       not (id-list |> any (id) ->
-        console.log id
         id.host == host and
         id.session == window.name and
         id.index == window.index)

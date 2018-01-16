@@ -1,5 +1,5 @@
 module.exports = (exec, commands) -> """
-Usage: #{exec} <#{commands.join(\|)}> [host] [session]
+Usage: #{exec} [options] [host] <#{commands.join(\|)}> [session]
 
 Commands:
   help    Display this help page
@@ -7,9 +7,15 @@ Commands:
   open    Open or create session on host
   new     Create new window in session
 
+Options:
+  -d      Use dmenu for navigation
+
+Arguments:
+  host    Which host to connect to. $RSE_HOST for default value.
+  session Which session to connect to.
+
 Example:
   rse open myhost.com new-session-name
-
   rse new myhost.com existing-session-name
 
 Local external dependencies:
@@ -18,6 +24,7 @@ Local external dependencies:
   mosh    For faster visual communication (optional)
   xtitle  Retreives name of active window
   wmctrl  Retreives names of open windows
+  dmenu   List sessions in menu
 
 Remote dependencies:
   mosh    (optional)

@@ -9,10 +9,11 @@ require! {
     sessions
     focused
     open
+    dmenu
   }
 }
 
-export list-cli = (host) ->
+export list-cli = (options, host) ->
   if not host?
     console.log "Host is required for list command"
   else
@@ -22,7 +23,7 @@ export list-cli = (host) ->
     |> each (key) ->
       console.log("#{key} #{list[key].length}")
 
-export open-cli = (client, host, session) ->
+export open-cli = (options, client, host, session) ->
   (id) <- focused!
 
   host-name = if host?
@@ -33,19 +34,26 @@ export open-cli = (client, host, session) ->
   then session
   else id?.session
 
-  if not client?
-    console.log "Client is required for 'open' command"
-
-  else if not host?
+  if not host-name?
     console.log "Host name is required for 'open' command"
-
-  else if not session-name?
-    console.log "Session name is required for 'open' command"
-
   else
-    open(client, host, session-name)
+    if not client?
+      console.log "Client is required for 'open' command"
 
-export new-cli  = (client, host, session) ->
+    else if not session-name? and not options.dmenu
+      console.log "Session name is required for 'open' command"
+
+    else
+      if options.dmenu
+        (list) <- sessions(host-name)
+        (session-name) <- dmenu("Session", keys(list))
+        console.log session-name
+        open(client, host-name, session-name)
+      else
+        open(client, host-name, session-name)
+
+
+export new-cli  = (options, client, host, session) ->
   (id) <- focused!
 
   host-name = if host?
