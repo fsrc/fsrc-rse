@@ -32,12 +32,20 @@ options = {
 }
 
 host    = args |> head
-command = args.1
-session = args.2
+if (commands |> any (cmd) -> cmd == host)
+  command = host
+  host    = null
+  session = args.1
+else
+  command = args.1
+  session = args.2
+
 client  = 'mosh'
 
-host = process.env.RSE_HOST if not host?
+# host = process.env.RSE_HOST if not host?
+host = 'fsrc.pw' if not host?
 
+# say "Options: #options Host #host Command #command Session #session"
 switch command
 case \help then say help-text
 case \list then list-cli(options, host)
