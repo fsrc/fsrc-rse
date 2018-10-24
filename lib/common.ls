@@ -21,29 +21,32 @@ require! {
   }
 }
 
-MOSH  = \mosh
-SM    = \abduco
-SHELL = \dvtm
-SSH   = \ssh
-SC    = \#
+MOSH     = \mosh
+SM       = \abduco
+SHELL    = \dvtm
+SSH      = \ssh
+SC       = \#
+TERMINAL = <[ terminator --profile=fsrc.pw ]>
+
+# spawn = -> console.log ...
 
 export dmenu-cmd = (prompt) ->
   [ '-p', "'#{prompt}'" ]
 
-export create-cmd = (client, host, session, index) ->
+export create-cmd = (term-args, client, host, session, index) ->
   name = "#{session}#{SC}#{index}"
   title = "#{host}#{SC}#{name}"
   {
-    mosh : [ '-T', title, '-e', MOSH, host, '--', SM,   '-c', name, SHELL ]
-    ssh :  [ '-T', title, '-e', SSH, host, '-t', '--', SM, '-c', name, SHELL ]
+    mosh : term-args ++ [ '-T', title, '-e', "#MOSH #host -- #SM -c #name #SHELL" ]
+    ssh :  term-args ++ [ '-T', title, '-e', "#SSH #host -t -- #SM -c #name #SHELL" ]
   }[client]
 
-export open-cmd = (client, host, session, index) ->
+export open-cmd = (term-args, client, host, session, index) ->
   name = "#{session}#{SC}#{index}"
   title = "#{host}#{SC}#{name}"
   {
-    mosh : [ '-T', title, '-e', MOSH, host, '--', SM,   '-a', name ]
-    ssh :  [ '-T', title, '-e', SSH, host, '-t', '--', SM, '-a', name ]
+    mosh : term-args ++ [ '-T', title, '-e', "#MOSH #host -- #SM -a #name" ]
+    ssh :  term-args ++ [ '-T', title, '-e', "#SSH #host -t -- #SM -a #name" ]
   }[client]
 
 export list-cmd = (host) ->
@@ -118,8 +121,8 @@ export next-index = (sessions, session) ->
 
 export create-new = (client, host, session, index) ->
   spawn(
-    'st',
-    create-cmd(client, host, session, index),
+    TERMINAL.0,
+    create-cmd(tail(TERMINAL), client, host, session, index),
     {detached: true, stdio:'ignore'}
   ).unref!
 
@@ -141,8 +144,8 @@ export open = (client, host, session-name) ->
         id.index == window.index)
     |> each (window) ->
       spawn(
-        'st',
-        open-cmd(client, host, window.name, window.index),
+        TERMINAL.0,
+        open-cmd(tail(TERMINAL), client, host, window.name, window.index),
         {detached: true, stdio:'ignore'}
       ).unref!
 
