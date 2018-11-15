@@ -23,7 +23,7 @@ require! {
 
 MOSH     = \mosh
 SM       = \abduco
-SHELL    = \dvtm
+SHELL    = \zsh
 SSH      = \ssh
 SC       = \#
 TERMINAL = <[ terminator --profile=fsrc.pw ]>
