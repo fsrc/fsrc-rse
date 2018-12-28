@@ -37,16 +37,16 @@ export create-cmd = (term-args, client, host, session, index) ->
   name = "#{session}#{SC}#{index}"
   title = "#{host}#{SC}#{name}"
   {
-    mosh : term-args ++ [ '-T', title, '-e', "#MOSH #host -- #SM -c #name #SHELL" ]
-    ssh :  term-args ++ [ '-T', title, '-e', "#SSH #host -t -- #SM -c #name #SHELL" ]
+    mosh : term-args ++ [ '--title', title, '-e', "#MOSH #host -- #SM -c #name #SHELL" ]
+    ssh :  term-args ++ [ '--title', title, '-e', "#SSH #host -t -- #SM -c #name #SHELL" ]
   }[client]
 
 export open-cmd = (term-args, client, host, session, index) ->
   name = "#{session}#{SC}#{index}"
   title = "#{host}#{SC}#{name}"
   {
-    mosh : term-args ++ [ '-T', title, '-e', "#MOSH #host -- #SM -a #name" ]
-    ssh :  term-args ++ [ '-T', title, '-e', "#SSH #host -t -- #SM -a #name" ]
+    mosh : term-args ++ [ '--title', title, '-e', "#MOSH #host -- #SM -a #name" ]
+    ssh :  term-args ++ [ '--title', title, '-e', "#SSH #host -t -- #SM -a #name" ]
   }[client]
 
 export list-cmd = (host) ->
