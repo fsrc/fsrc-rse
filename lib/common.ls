@@ -13,22 +13,68 @@ require! {
     drop
   }
   'child_process': {
-    spawn
+    spawn : spawn2
     exec
   }
   'util' : {
     inspect
   }
+  './config'
 }
 
-MOSH     = \mosh
-SM       = \abduco
-SHELL    = \zsh
-SSH      = \ssh
-SC       = \#
-TERMINAL = <[ terminator --profile=fsrc.pw ]>
+MOSH       = config.mosh.cmd
+SSH        = config.ssh.cmd
 
-# spawn = -> console.log ...
+SM         = config.session-manager.cmd
+SM-LIST    = config.session-manager.list-args
+
+SHELL      = config.shell
+SC         = config.separator
+
+TERMINAL   = config.terminal.cmd
+TERM-TITLE = config.terminal.title-arg
+TERM-EXEC  = config.terminal.execute-arg
+TERM-ARGS  = config.terminal.args
+
+# MOSH     = \mosh
+# SM       = \abduco
+# SHELL    = \zsh
+# SSH      = \ssh
+# SC       = \#
+# TERMINAL = <[ terminator --profile=fsrc.pw ]>
+
+spawn = (term, args) ->
+
+  options = if config.debug
+    { detached: false, stdio:'inherit' }
+  else
+    { detached: true, stdio:'ignore' }
+
+  if config.debug
+    console.error ...
+
+  proc = spawn2( term, args, options )
+
+
+  if not config.debug
+    proc.unref!
+
+  else
+    proc.on \close, (code, signal) ->
+      console.error \CLOSED
+      console.error \CODE:, code
+      console.error \SIGNAL:, signal
+
+    proc.on \error, (err) ->
+      console.error 'SUB PROCESS ERROR:'
+      console.error err
+
+    proc.on \exit, (code, signal) ->
+      console.error \EXIT
+      console.error \CODE:, code
+      console.error \SIGNAL:, signal
+
+  proc
 
 export dmenu-cmd = (prompt) ->
   [ '-p', "'#{prompt}'" ]
@@ -37,20 +83,20 @@ export create-cmd = (term-args, client, host, session, index) ->
   name = "#{session}#{SC}#{index}"
   title = "#{host}#{SC}#{name}"
   {
-    mosh : term-args ++ [ '--title', title, '-e', "#MOSH #host -- #SM -c #name #SHELL" ]
-    ssh :  term-args ++ [ '--title', title, '-e', "#SSH #host -t -- #SM -c #name #SHELL" ]
+    mosh : term-args ++ [ TERM-TITLE, title, TERM-EXEC, "#MOSH #host -- #SM -c #name #SHELL" ]
+    ssh :  term-args ++ [ TERM-TITLE, title, TERM-EXEC, "#SSH #host -t -- #SM -c #name #SHELL" ]
   }[client]
 
 export open-cmd = (term-args, client, host, session, index) ->
   name = "#{session}#{SC}#{index}"
   title = "#{host}#{SC}#{name}"
   {
-    mosh : term-args ++ [ '--title', title, '-e', "#MOSH #host -- #SM -a #name" ]
-    ssh :  term-args ++ [ '--title', title, '-e', "#SSH #host -t -- #SM -a #name" ]
+    mosh : term-args ++ [ TERM-TITLE, title, TERM-EXEC, "#MOSH #host -- #SM -a #name" ]
+    ssh :  term-args ++ [ TERM-TITLE, title, TERM-EXEC, "#SSH #host -t -- #SM -a #name" ]
   }[client]
 
 export list-cmd = (host) ->
-  "ssh #{host} 'abduco -l'"
+  "#SSH #{host} '#SM #SM-LIST'"
 
 
 export window-name-to-id = (name) ->
@@ -120,11 +166,7 @@ export next-index = (sessions, session) ->
     ).index + 1
 
 export create-new = (client, host, session, index) ->
-  spawn(
-    TERMINAL.0,
-    create-cmd(tail(TERMINAL), client, host, session, index),
-    {detached: true, stdio:'ignore'}
-  ).unref!
+  spawn(TERMINAL, create-cmd(TERM-ARGS, client, host, session, index))
 
 export open = (client, host, session-name) ->
   (list) <- sessions(host)
@@ -143,9 +185,5 @@ export open = (client, host, session-name) ->
         id.session == window.name and
         id.index == window.index)
     |> each (window) ->
-      spawn(
-        TERMINAL.0,
-        open-cmd(tail(TERMINAL), client, host, window.name, window.index),
-        {detached: true, stdio:'ignore'}
-      ).unref!
+      spawn(TERMINAL, open-cmd(TERM-ARGS, client, host, window.name, window.index))
 
