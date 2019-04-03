@@ -20,13 +20,16 @@
     "servers"
   ],
   "author": "Fredrik Andersson",
-  "license": "BSD-3-Clause",
+  "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/fsrc/rse/issues"
   },
   "homepage": "https://github.com/fsrc/rse#readme",
   "dependencies": {
-    "livescript": "^1.5.0",
-    "prelude-ls": "^1.1.2"
+    "prelude-ls": "^1.1.2",
+    "fsrc-config": "^1.0.0"
+  },
+  "devDependencies": {
+    "livescript": "^1.6.0"
   }
 }
