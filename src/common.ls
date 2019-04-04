@@ -11,6 +11,7 @@ require! {
     keys
     maximum-by
     drop
+    flatten
   }
   'child_process': {
     spawn : spawn2
@@ -19,29 +20,43 @@ require! {
   'util' : {
     inspect
   }
-  './config'
+  'fsrc-config' : fsrc-config
 }
+
+config = fsrc-config(
+  \rse,
+  {
+    "ssh": { "cmd":"ssh" },
+    "mosh": { "cmd":"mosh" },
+    "sessionManager": {
+      "cmd":"abduco",
+      "listArg":"-l",
+      "createArgs" : ['zsh']
+      },
+    "shell": "zsh",
+    "separator": "#",
+    "terminal": { "cmd" : "terminator", "titleArg": "-T", "executeArg": "-e", "args" : [] },
+    "debug": true
+  })
+
 
 MOSH       = config.mosh.cmd
 SSH        = config.ssh.cmd
 
 SM         = config.session-manager.cmd
-SM-LIST    = config.session-manager.list-args
+SM-LIST    = config.session-manager.list-arg
 
 SHELL      = config.shell
 SC         = config.separator
+
+DMENU      = config.dmenu.cmd
+DMENU-PROMPT-ARG = config.dmenu.prompt-arg
+DMENU-ARGS = config.dmenu.args
 
 TERMINAL   = config.terminal.cmd
 TERM-TITLE = config.terminal.title-arg
 TERM-EXEC  = config.terminal.execute-arg
 TERM-ARGS  = config.terminal.args
-
-# MOSH     = \mosh
-# SM       = \abduco
-# SHELL    = \zsh
-# SSH      = \ssh
-# SC       = \#
-# TERMINAL = <[ terminator --profile=fsrc.pw ]>
 
 spawn = (term, args) ->
 
@@ -51,7 +66,9 @@ spawn = (term, args) ->
     { detached: true, stdio:'ignore' }
 
   if config.debug
+    # Print arguments
     console.error ...
+    console.error term, args.join(' ')
 
   proc = spawn2( term, args, options )
 
@@ -77,22 +94,22 @@ spawn = (term, args) ->
   proc
 
 export dmenu-cmd = (prompt) ->
-  [ '-p', "'#{prompt}'" ]
+  DMENU-ARGS ++ [ DMENU-PROMPT-ARG, "'#{prompt}'" ]
 
 export create-cmd = (term-args, client, host, session, index) ->
   name = "#{session}#{SC}#{index}"
   title = "#{host}#{SC}#{name}"
   {
-    mosh : term-args ++ [ TERM-TITLE, title, TERM-EXEC, "#MOSH #host -- #SM -c #name #SHELL" ]
-    ssh :  term-args ++ [ TERM-TITLE, title, TERM-EXEC, "#SSH #host -t -- #SM -c #name #SHELL" ]
+    mosh : term-args ++ [ TERM-TITLE, title, TERM-EXEC, MOSH, host, "--", SM, "-c", name, SHELL ]
+    ssh :  term-args ++ [ TERM-TITLE, title, TERM-EXEC, SSH,  host, "-t", "--", SM, "-c", name, SHELL ]
   }[client]
 
 export open-cmd = (term-args, client, host, session, index) ->
   name = "#{session}#{SC}#{index}"
   title = "#{host}#{SC}#{name}"
   {
-    mosh : term-args ++ [ TERM-TITLE, title, TERM-EXEC, "#MOSH #host -- #SM -a #name" ]
-    ssh :  term-args ++ [ TERM-TITLE, title, TERM-EXEC, "#SSH #host -t -- #SM -a #name" ]
+    mosh : term-args ++ [ TERM-TITLE, title, TERM-EXEC, MOSH, host, "--", SM, "-a", name ]
+    ssh :  term-args ++ [ TERM-TITLE, title, TERM-EXEC, SSH, host, "-t", "--", SM, "-a", name ]
   }[client]
 
 export list-cmd = (host) ->
@@ -109,7 +126,7 @@ export window-name-to-id = (name) ->
   index: parseInt(index)
 
 export dmenu = (prompt, list, callback) ->
-  cp = spawn('dmenu', dmenu-cmd(prompt))
+  cp = spawn2(DMENU, dmenu-cmd(prompt))
 
   cp.stdin.write(Buffer.from(list.join("\n")))
   cp.stdin.end!

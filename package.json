@@ -1,13 +1,13 @@
 {
-  "name": "rse",
+  "name": "fsrc-rse",
   "version": "1.0.0",
   "description": "Local multi window session on remote host",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "bin": {
     "rse": "./bin/rse"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepare": "lsc -cp ./src/cli.ls > dist/cli.js ; lsc -cp ./src/common.ls > dist/common.js ; lsc -cp ./src/help.ls > dist/help.js ; lsc -cp ./src/index.ls > dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -27,9 +27,10 @@
   "homepage": "https://github.com/fsrc/rse#readme",
   "dependencies": {
     "prelude-ls": "^1.1.2",
-    "fsrc-config": "^1.0.0"
+    "fsrc-config": "^0.0.1"
   },
   "devDependencies": {
-    "livescript": "^1.6.0"
+    "livescript": "^1.6.0",
+    "fsrc-config": "file:../config"
   }
 }

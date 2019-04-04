@@ -47,8 +47,10 @@ export open-cli = (options, client, host, session) ->
       if options.dmenu
         (list) <- sessions(host-name)
         (session-name) <- dmenu("Session", keys(list))
+
         console.log session-name
         open(client, host-name, session-name)
+
       else
         open(client, host-name, session-name)
 
