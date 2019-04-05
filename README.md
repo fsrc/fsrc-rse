@@ -42,4 +42,36 @@ Get instructions by executing
 
   rse
 
+# My example configuration
+
+  {
+    "ssh": {
+      "cmd": "ssh"
+    },
+    "mosh": {
+      "cmd": "mosh"
+    },
+    "sessionManager": {
+      "cmd": "abduco",
+      "listArg": "-l",
+      "createArgs": [
+        "zsh"
+      ]
+    },
+    "shell": "zsh",
+    "separator": "#",
+    "terminal": {
+      "cmd": "urxvtc",
+      "titleArg": "-T",
+      "executeArg": "-e",
+      "args": []
+    },
+    "dmenu" : {
+      "cmd": "rofi",
+      "promptArg" : "-mesg",
+      "args": ["-dmenu"]
+    },
+    "debug": false
+  }
+
 
