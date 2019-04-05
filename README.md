@@ -44,6 +44,9 @@ Get instructions by executing
 
 # My example configuration
 
+    $HOME/.config/fsrc/rse.config
+
+
     {
       "ssh": {
         "cmd": "ssh"
