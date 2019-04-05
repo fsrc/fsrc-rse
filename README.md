@@ -34,44 +34,44 @@ rse uses window titles and session names to manage state.
 
 Install cli command
 
-  npm -g install fsrc-rse
+    npm -g install fsrc-rse
 
 # Usage
 
 Get instructions by executing
 
-  rse
+    rse
 
 # My example configuration
 
-  {
-    "ssh": {
-      "cmd": "ssh"
-    },
-    "mosh": {
-      "cmd": "mosh"
-    },
-    "sessionManager": {
-      "cmd": "abduco",
-      "listArg": "-l",
-      "createArgs": [
-        "zsh"
-      ]
-    },
-    "shell": "zsh",
-    "separator": "#",
-    "terminal": {
-      "cmd": "urxvtc",
-      "titleArg": "-T",
-      "executeArg": "-e",
-      "args": []
-    },
-    "dmenu" : {
-      "cmd": "rofi",
-      "promptArg" : "-mesg",
-      "args": ["-dmenu"]
-    },
-    "debug": false
-  }
+    {
+      "ssh": {
+        "cmd": "ssh"
+      },
+      "mosh": {
+        "cmd": "mosh"
+      },
+      "sessionManager": {
+        "cmd": "abduco",
+        "listArg": "-l",
+        "createArgs": [
+          "zsh"
+        ]
+      },
+      "shell": "zsh",
+      "separator": "#",
+      "terminal": {
+        "cmd": "urxvtc",
+        "titleArg": "-T",
+        "executeArg": "-e",
+        "args": []
+      },
+      "dmenu" : {
+        "cmd": "rofi",
+        "promptArg" : "-mesg",
+        "args": ["-dmenu"]
+      },
+      "debug": false
+    }
 
 
