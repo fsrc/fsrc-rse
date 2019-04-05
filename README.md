@@ -34,7 +34,7 @@ rse uses window titles and session names to manage state.
 
 Install cli command
 
-  npm install fsrc-rse
+  npm -g install fsrc-rse
 
 # Usage
 

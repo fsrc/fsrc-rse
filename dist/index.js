@@ -42,7 +42,7 @@
   }
   client = 'mosh';
   if (host == null) {
-    host = 'fsrc.pw';
+    host = process.env.RSE_HOST;
   }
   switch (command) {
   case 'help':
