@@ -42,8 +42,7 @@ else
 
 client  = 'mosh'
 
-# host = process.env.RSE_HOST if not host?
-host = 'fsrc.pw' if not host?
+host = process.env.RSE_HOST if not host?
 
 # say "Options: #options Host #host Command #command Session #session"
 switch command

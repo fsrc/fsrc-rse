@@ -1,6 +1,6 @@
 {
   "name": "fsrc-rse",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Local multi window session on remote host",
   "main": "./dist/index.js",
   "bin": {
