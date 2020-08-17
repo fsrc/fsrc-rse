@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fsrc/rse.git"
+    "url": "git+https://github.com/fsrc/fsrc-rse.git"
   },
   "keywords": [
     "tmux",
@@ -22,9 +22,9 @@
   "author": "Fredrik Andersson",
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/fsrc/rse/issues"
+    "url": "https://github.com/fsrc/fsrc-rse/issues"
   },
-  "homepage": "https://github.com/fsrc/rse#readme",
+  "homepage": "https://github.com/fsrc/fsrc-rse#readme",
   "dependencies": {
     "prelude-ls": "^1.1.2",
     "fsrc-config": "^0.0.2"
