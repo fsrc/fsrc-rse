@@ -40,7 +40,7 @@ else
   command = args.1
   session = args.2
 
-client  = 'mosh'
+client  = 'ssh'
 
 host = process.env.RSE_HOST if not host?
 

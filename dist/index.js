@@ -40,7 +40,7 @@
     command = args[1];
     session = args[2];
   }
-  client = 'mosh';
+  client = 'ssh';
   if (host == null) {
     host = process.env.RSE_HOST;
   }

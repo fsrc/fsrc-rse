@@ -23,13 +23,15 @@ require! {
   'fsrc-config' : fsrc-config
 }
 
+say = -> console.log(it);it
+
 config = fsrc-config(
   \rse,
   {
     "ssh": { "cmd":"ssh" },
     "mosh": { "cmd":"mosh" },
     "sessionManager": {
-      "cmd":"abduco",
+      "cmd":"dtach",
       "listArg":"-l",
       "createArgs" : ['zsh']
       },
@@ -96,24 +98,80 @@ spawn = (term, args) ->
 export dmenu-cmd = (prompt) ->
   DMENU-ARGS ++ [ DMENU-PROMPT-ARG, "'#{prompt}'" ]
 
-export create-cmd = (term-args, client, host, session, index) ->
-  name = "#{session}#{SC}#{index}"
-  title = "#{host}#{SC}#{name}"
-  {
-    mosh : term-args ++ [ TERM-TITLE, title, TERM-EXEC, MOSH, host, "--", SM, "-c", name, SHELL ]
-    ssh :  term-args ++ [ TERM-TITLE, title, TERM-EXEC, SSH,  host, "-t", "--", SM, "-c", name, SHELL ]
-  }[client]
+if SM != 'dtach'
+  export create-cmd = (term-args, client, host, session, index) ->
+    name = "#{session}#{SC}#{index}"
+    title = "#{host}#{SC}#{name}"
+    {
+      mosh : term-args ++ [ TERM-TITLE, title, TERM-EXEC, MOSH, host, "--", SM, "-c", name, SHELL ]
+      ssh :  term-args ++ [ TERM-TITLE, title, TERM-EXEC, SSH,  host, "-t", "--", SM, "-c", name, SHELL ]
+    }[client]
 
-export open-cmd = (term-args, client, host, session, index) ->
-  name = "#{session}#{SC}#{index}"
-  title = "#{host}#{SC}#{name}"
-  {
-    mosh : term-args ++ [ TERM-TITLE, title, TERM-EXEC, MOSH, host, "--", SM, "-a", name ]
-    ssh :  term-args ++ [ TERM-TITLE, title, TERM-EXEC, SSH, host, "-t", "--", SM, "-a", name ]
-  }[client]
+  export open-cmd = (term-args, client, host, session, index) ->
+    name = "#{session}#{SC}#{index}"
+    title = "#{host}#{SC}#{name}"
+    {
+      mosh : term-args ++ [ TERM-TITLE, title, TERM-EXEC, MOSH, host, "--", SM, "-a", name ]
+      ssh :  term-args ++ [ TERM-TITLE, title, TERM-EXEC, SSH, host, "-t", "--", SM, "-a", name ]
+    }[client]
 
-export list-cmd = (host) ->
-  "#SSH #{host} '#SM #SM-LIST'"
+  export list-cmd = (host) ->
+    say "#SM"
+    "#SSH #{host} '#SM #SM-LIST'"
+
+  export sessions = (host, callback) ->
+    (err, stdout, stderr) <- exec(list-cmd(host))
+    if err?
+      console.log err.message
+    else
+      say stdout
+      stdout
+      |> lines |> tail |> initial
+      |> map (line) ->
+        columns       = line.split(\\t)
+        [name, index] = columns.2.split(SC)
+        active : columns.0.0 == '*'
+        date   : new Date(columns.1)
+        name   : name
+        index  : parseInt(index)
+      |> group-by (.name)
+      |> callback
+
+else
+  export create-cmd = (term-args, client, host, session, index) ->
+    name = "#{session}#{SC}#{index}"
+    title = "#{host}#{SC}#{name}"
+    {
+      mosh : term-args ++ [ TERM-TITLE, title, TERM-EXEC, MOSH, host, "--", "dtach", "-c", "~/.dtach/#name", SHELL ]
+      ssh :  term-args ++ [ TERM-TITLE, title, TERM-EXEC, SSH,  host, "-t", "--", "dtach", "-c", "~/.dtach/#name", SHELL ]
+    }[client]
+
+  export open-cmd = (term-args, client, host, session, index) ->
+    name = "#{session}#{SC}#{index}"
+    title = "#{host}#{SC}#{name}"
+    {
+      mosh : term-args ++ [ TERM-TITLE, title, TERM-EXEC, MOSH, host, "--", "dtach", "-a", "~/.dtach/#name"]
+      ssh :  term-args ++ [ TERM-TITLE, title, TERM-EXEC, SSH, host, "-t", "--", "dtach", "-a", "~/.dtach/#name"]
+    }[client]
+
+  export list-cmd = (host) ->
+    "#SSH #{host} 'ls ~/.dtach'"
+
+  export sessions = (host, callback) ->
+    (err, stdout, stderr) <- exec(list-cmd(host))
+    if err?
+      console.log err.message
+    else
+      stdout
+      |> lines
+      |> filter (!= "")
+      |> map (line) ->
+        [name, index] = line.split(SC)
+        name   : name
+        index  : parseInt(index)
+      |> group-by (.name)
+      |> say
+      |> callback
 
 
 export window-name-to-id = (name) ->
@@ -156,22 +214,6 @@ export windows = (callback) ->
 
   callback(id-list)
 
-export sessions = (host, callback) ->
-  (err, stdout, stderr) <- exec(list-cmd(host))
-  if err?
-    console.log err.message
-  else
-    stdout
-    |> lines |> tail |> initial
-    |> map (line) ->
-      columns       = line.split(\\t)
-      [name, index] = columns.2.split(SC)
-      active : columns.0.0 == '*'
-      date   : new Date(columns.1)
-      name   : name
-      index  : parseInt(index)
-    |> group-by (.name)
-    |> callback
 
 export next-index = (sessions, session) ->
   if not sessions[session]?
